@@ -6,19 +6,16 @@ Sistema multiagente que analiza alertas de seguridad. Un **supervisor** (`langgr
 2. **threat_analyzer** – solo si es verdadero positivo: severidad, TTPs y mitigaciones.
 3. **notification_agent** – envía el informe por **Gmail**.
 
-Incluye una app de **Streamlit** que muestra cada paso del supervisor en directo.
-
 ## Estructura
 
 | Fichero | Qué hace |
 |---|---|
-| `streamlit_app.py` | Interfaz web |
-| `supervisor.py` | Workflow del supervisor (`process_security_alert`, `stream_security_alert`) |
+| `probar_alerta.py` | Lanza una alerta desde la terminal: `python probar_alerta.py ejemplos/log_edr.txt` |
+| `supervisor.py` | El supervisor y `Run_All_process_related_to_alert_security()` |
 | `agents.py` | Los tres agentes |
 | `tools.py` | VirusTotal, Tavily y Gmail |
-| `config.py` | Lee las claves del entorno |
-| `probar_alerta.py` | Prueba por consola, sin web |
-| `alerta_*.json` | Alertas de ejemplo |
+| `config.py` | Lee las claves del `.env` |
+| `ejemplos/` | Alertas de prueba: JSON, logs de texto e indicadores sueltos |
 
 ## Ejecutar en local
 
@@ -26,30 +23,28 @@ Incluye una app de **Streamlit** que muestra cada paso del supervisor en directo
 pip install -r requirements.txt
 cp .env.example .env          # y rellena tus claves
 python tools.py               # la primera vez abre el navegador para autorizar Gmail y crea token.json
-streamlit run streamlit_app.py
+python probar_alerta.py       # ejemplos/alerta_ejemplo.json: el informe llega por email
 ```
 
-## Publicar en GitHub
+La alerta puede ser un JSON, con cualquier plantilla (la del curso, ECS, la de tu SIEM…), o texto libre: unas líneas
+de log, un hash o una IP. Con datos reales de tu empresa, pide antes permiso a tu equipo de seguridad y anonimízalos
+(mira el README de la carpeta superior).
 
-`.gitignore` ya excluye `.env`, `token.json`, `credenciales_google.json` y `.streamlit/secrets.toml`. **Comprueba con `git status` que no aparecen antes del primer commit.**
+## Compartir en GitHub
+
+El repositorio es la carpeta superior, `Sesion_3_Vscode`: los ejemplos de la sesión y este taller. Los `.gitignore`
+ya excluyen `.env`, los tokens, `credenciales_google.json` y `venv/`. **Comprueba con `git status` que no aparecen
+antes del primer commit.**
 
 ```bash
+cd ..                         # a la carpeta Sesion_3_Vscode
 git init
 git add .
 git status                    # .env, token.json y credenciales_google.json NO deben salir
-git commit -m "SOC multiagente con Streamlit"
+git commit -m "Sesión 3: ejemplos y SOC multiagente"
 git branch -M main
-git remote add origin https://github.com/<tu-usuario>/soc-multiagent.git
+git remote add origin https://github.com/<tu-usuario>/<tu-repo>.git
 git push -u origin main
 ```
 
-## Desplegar en Streamlit Community Cloud
-
-1. Entra en [share.streamlit.io](https://share.streamlit.io) → **Create app** → elige el repositorio, rama `main` y fichero `streamlit_app.py`.
-2. En **Advanced settings → Secrets** pega el contenido de `.streamlit/secrets.toml.example` con tus valores:
-   - Las claves de OpenAI, Tavily y VirusTotal.
-   - `GMAIL_TOKEN_JSON`: el **contenido** de tu `token.json` generado en local (en la nube no se puede abrir el navegador para autorizar Gmail).
-   - `APP_PASSWORD`: muy recomendable. Sin ella, cualquiera con el enlace puede gastar tus créditos y enviar emails desde tu cuenta.
-3. **Deploy**.
-
-La app copia los secrets a variables de entorno, así que `config.py` funciona igual en local (`.env`) y en la nube.
+Después, cada cambio: `git add .`, `git commit -m "…"` y `git push`. Tu equipo lo recibe con `git pull`.

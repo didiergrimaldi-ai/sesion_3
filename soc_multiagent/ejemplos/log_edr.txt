@@ -1,0 +1,5 @@
+2026-10-06 09:15:00 PC-CONTABILIDAD-07 Microsoft-Windows-Windows Defender/Operational EventID=1116
+Threat=Virus:DOS/EICAR_Test_File Severity=Severe Action=Quarantine
+User=EMPRESA\jlopez Process=C:\Program Files\Google\Chrome\Application\chrome.exe
+Path=C:\Users\jlopez\Downloads\factura_octubre.exe
+SHA256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f

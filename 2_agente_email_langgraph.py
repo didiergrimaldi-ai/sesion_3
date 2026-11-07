@@ -12,6 +12,7 @@ import os
 import sys
 from email import message_from_bytes, policy
 from email.message import EmailMessage
+from pathlib import Path
 from typing import TypedDict
 
 from google.auth.transport.requests import Request
@@ -24,12 +25,13 @@ from langgraph.graph import StateGraph, START, END
 # Solo para que los print de la consola de Windows muestren tildes y ñ
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+BASE_DIR = Path(__file__).parent      # la carpeta de este fichero
 # Trabajar en la carpeta del script: aquí están credenciales_google.json y el token
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(BASE_DIR)
 
 
 # ---------------------------------------------------------------------------
-# Conexión a Gmail (reutiliza el token de la versión LangChain: no vuelve a pedir login)
+# Conexión a Gmail (la 1.ª vez pide login y guarda el token; después lo reutiliza)
 # ---------------------------------------------------------------------------
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
@@ -132,33 +134,35 @@ def crear_borrador(state: EstadoAgente) -> dict:
 # ---------------------------------------------------------------------------
 # 3. Arista condicional: la única decisión real del flujo (bandeja vacía)
 # ---------------------------------------------------------------------------
-def hay_email(state: EstadoAgente) -> str:
-    return "leer_email" if state.get("message_id") else END
-
+def decidir_rama_hay_email(state: EstadoAgente): # router: decide el camino según el estado
+    if state.get("message_id") == "":
+        return END
+    else: 
+        return "leer_email"
 
 # ---------------------------------------------------------------------------
 # 4. Grafo: add_node registra los nodos, add_edge fija el orden
 # ---------------------------------------------------------------------------
 grafo = StateGraph(EstadoAgente)
-grafo.add_node("buscar_emails", buscar_emails)
+
+grafo.add_node("buscar_emails", buscar_emails)  # nodo inicial
 grafo.add_node("leer_email", leer_email)
 grafo.add_node("generar_respuesta", generar_respuesta)
 grafo.add_node("crear_borrador", crear_borrador)
 
 grafo.add_edge(START, "buscar_emails")
-grafo.add_conditional_edges("buscar_emails", hay_email,
-                            ["leer_email", END])
+grafo.add_conditional_edges("buscar_emails", decidir_rama_hay_email)
+
 grafo.add_edge("leer_email", "generar_respuesta")
 grafo.add_edge("generar_respuesta", "crear_borrador")
 grafo.add_edge("crear_borrador", END)
 
 agente = grafo.compile()
 
-
 if __name__ == "__main__":
     resultado = agente.invoke({"consulta": "in:inbox"})
 
-    if not resultado.get("borrador_id"):
+    if resultado.get("borrador_id") is None:
         print("No hay emails en la bandeja de entrada.")
     else:
         print("Asunto:", resultado["email"]["asunto"])

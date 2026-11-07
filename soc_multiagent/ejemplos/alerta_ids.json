@@ -1,0 +1,13 @@
+{
+  "id": "ALERT-0004",
+  "source": "IDS (Suricata)",
+  "type": "Network Intrusion",
+  "severity": "Medium",
+  "rule": "GPL ATTACK_RESPONSE id check returned root",
+  "signature_id": 2100498,
+  "classification": "Potentially Bad Traffic",
+  "host": "SRV-WEB-02",
+  "http_hostname": "testmynids.org",
+  "url": "http://testmynids.org/uid/index.html",
+  "timestamp": "2026-10-06T11:05:00Z"
+}

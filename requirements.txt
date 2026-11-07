@@ -5,7 +5,6 @@
 langgraph
 langgraph-supervisor        # create_supervisor (supervisor + especialistas)
 langchain                   # create_agent, init_chat_model, @tool
-langchain-classic           # AgentExecutor (1_agente_ia_langchain_simplificado.py)
 langchain-openai            # ChatOpenAI
 
 # Herramientas (integraciones)

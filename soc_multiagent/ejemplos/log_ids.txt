@@ -1,0 +1,2 @@
+10/06/2026-11:05:12.345678 testmynids.org [**] /uid/index.html [**] curl/8.4.0 [**] 10.0.0.25:51234 -> 203.0.113.10:80
+10/06/2026-11:05:12.398112  [**] [1:2100498:7] GPL ATTACK_RESPONSE id check returned root [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 203.0.113.10:80 -> 10.0.0.25:51234

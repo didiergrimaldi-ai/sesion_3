@@ -39,26 +39,27 @@ def virustotal_checker(indicator: str, indicator_type: str) -> str:
     Returns:
         Resultado del analisis de VirusTotal
     """
+    indicator_type = indicator_type.lower()   # acepta "URL", "Url" o "url"
     try:
         with vt.Client(config.VIRUSTOTAL_API_KEY) as client:
             if indicator_type == "url":
                 url_id = vt.url_id(indicator)
                 analysis = client.get_object(f"/urls/{url_id}")
             elif indicator_type == "ip":
-                analysis = client.get_object(f"/ip-addresses/{indicator}")
+                analysis = client.get_object(f"/ip_addresses/{indicator}")
             elif indicator_type == "hash":
                 analysis = client.get_object(f"/files/{indicator}")
             else:
                 return f"Tipo no soportado: {indicator_type}"
             
             stats = analysis.last_analysis_stats
-            malicious = stats.get("malicious", 0)
+            malicious = stats.get("malicious", 0) # el número de detecciones maliciosas y, si no viene, cuenta 0
             suspicious = stats.get("suspicious", 0)
             total = sum(stats.values())
 
             if malicious > 5:
                 threat_level = "MALICIOSO"
-            elif malicious > 0 or suspicious > 3:
+            elif malicious >= 2 or suspicious > 3:   # 1 motor aislado se considera ruido
                 threat_level = "SOSPECHOSO"
             else:
                 threat_level = "LIMPIO"
@@ -69,13 +70,21 @@ Detecciones: {malicious}/{total} maliciosas, {suspicious}/{total} sospechosas
 Clasificacion: {threat_level}
 Análisis: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
     
-    except Exception as e:
+    except vt.APIError as e:
+        if e.code == "NotFoundError":   # VirusTotal no tiene ningún informe de este indicador
+            return f"""ANALISIS VIRUSTOTAL:
+Indicador: {indicator}
+Sin informe previo: indicador DESCONOCIDO (no significa que sea limpio)"""
+        return f"Error VirusTotal: {e}"
+    except Exception as e:              # otros fallos: red, clave...
         return f"Error VirusTotal: {str(e)}"
     
 # Lista de herramientas para importacion
-all_tools = [search_tool, virustotal_checker] + gmail_tools
+all_tools = [search_tool, virustotal_checker] + gmail_tools # sumando todas las herramientas disponibles sumando 2 listas
 
 if __name__ == "__main__":
     # Prueba rápida antes de dárselas a los agentes: python tools.py
     print([t.name for t in all_tools])
     print(virustotal_checker.invoke({"indicator": "8.8.8.8", "indicator_type": "ip"}))
+    print(virustotal_checker.invoke({"indicator": "www.orange.es", "indicator_type": "url"}))
+    print(virustotal_checker.invoke({"indicator": "66172665c119343ca2388903cbc2fd461d8688934616507ae843c9987cba9dcb", "indicator_type": "hash"}))
