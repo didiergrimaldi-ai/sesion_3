@@ -33,6 +33,7 @@ os.chdir(BASE_DIR)
 # ---------------------------------------------------------------------------
 # Conexión a Gmail (la 1.ª vez pide login y guarda el token; después lo reutiliza)
 # ---------------------------------------------------------------------------
+
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.compose",
