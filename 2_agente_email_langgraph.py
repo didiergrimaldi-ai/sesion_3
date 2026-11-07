@@ -22,7 +22,7 @@ from googleapiclient.discovery import build
 from langchain.chat_models import init_chat_model
 from langgraph.graph import StateGraph, START, END
 
-# Solo para que los print de la consola de Windows muestren tildes y ñ
+### Solo para que los print de la consola de Windows muestren tildes y ñ
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 BASE_DIR = Path(__file__).parent      # la carpeta de este fichero
