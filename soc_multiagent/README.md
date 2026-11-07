@@ -41,7 +41,7 @@ cd ..                         # a la carpeta Sesion_3_Vscode
 git init
 git add .
 git status                    # .env, token.json y credenciales_google.json NO deben salir
-git commit -m "Sesión 3: ejemplos y SOC multiagente"
+git commit -m "sesion 3_Vs_code"
 git branch -M main
 git remote add origin https://github.com/<tu-usuario>/<tu-repo>.git
 git push -u origin main
